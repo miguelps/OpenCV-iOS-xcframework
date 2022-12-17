@@ -48,6 +48,7 @@ jobs:
                   --framework_name opencv2 \
                   --out ./opencv-build \
                   --iphonesimulator_archs x86_64,arm64 \
+                  --iphoneos_archs arm64 \
                   --build_only_specified_archs \
                   --without calib3d \
                   --without dnn \
