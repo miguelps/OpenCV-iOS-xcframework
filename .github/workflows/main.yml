@@ -1,4 +1,4 @@
-name: Build OpenCV for iOS
+name: Build OpenCV-contrib for iOS
 
 on:
   push:
@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    name: Build OpenCV xcframework
+    name: Build OpenCV / OpenCV-Contrib xcframework
+    #runs-on: macos-latest
     runs-on: macOS-12
     env:
       OCV_VER: 4.6.0
@@ -18,12 +19,14 @@ jobs:
         run: |
           type curl grep sed tr brew cmake git python3 2>&1
           xcode-select -p
+
       - name: Checkout
         uses: actions/checkout@v3
       
       - name: Prepare Cache Key
         run: |
           echo "https://github.com/opencv/opencv/archive/refs/tags/${OCV_VER}.tar.gz" >> cache_key.txt
+          echo "https://github.com/opencv/opencv_contrib/archive/refs/tags/${OCV_VER}.tar.gz" >> cache_key.txt
           
       - name: Cache Downloads
         id: cache-downloads
@@ -38,43 +41,40 @@ jobs:
         run: |
             mkdir -p ./cache
             curl -o ./cache/opencv-${OCV_VER}.tar.gz -L "https://github.com/opencv/opencv/archive/refs/tags/${OCV_VER}.tar.gz"
-      - name: Extract OpenCV
+            curl -o ./cache/opencv_contrib-${OCV_VER}.tar.gz -L "https://github.com/opencv/opencv_contrib/archive/refs/tags/${OCV_VER}.tar.gz"
+
+      - name: Extract OpenCV & OpenCV Contrib
         run: |
           tar xf ./cache/opencv-${OCV_VER}.tar.gz
+          tar xf ./cache/opencv_contrib-${OCV_VER}.tar.gz
           ls -l
-      - name: Build OpenCV
+
+      - name: Build OpenCV / OpenCV-Contrib
         run: |
           python3 opencv-${OCV_VER}/platforms/apple/build_xcframework.py \
                   --framework_name opencv2 \
                   --out ./opencv-build \
-                  --iphonesimulator_archs x86_64,arm64 \
+                  --contrib opencv_contrib-${OCV_VER} \
                   --iphoneos_archs arm64 \
+                  --iphonesimulator_archs x86_64,arm64 \
                   --build_only_specified_archs \
-                  --without calib3d \
-                  --without dnn \
-                  --without features2d \
-                  --without flann \
-                  --without gapi \
-                  --without highgui \
-                  --without imgcodecs \
-                  --without java \
-                  --without js \
-                  --without ml \
                   --without objc \
-                  --without objdetect \
-                  --without photo \
-                  --without python \
-                  --without stitching \
-                  --without ts \
-                  --without video \
-                  --without videoio \
-                  --without world
+                  --without alphamat \
+                  --without cvv \
+                  --without java \
+                  --without julia \
+                  --without matlab \
+                  --without ovis \
+                  --without python2 \
+                  --without python3 \
+                  --without datasets
+
       - name: Zip xcframework
         run: |
           cd ./opencv-build 
-          zip -r opencv-ios-${OCV_VER}.zip opencv2.xcframework
+          zip -r opencv_contrib-${OCV_VER}-ios.zip opencv2.xcframework
           ls -l
-          du -sh opencv-ios-${OCV_VER}.zip
+          du -sh opencv_contrib-${OCV_VER}-ios.zip
           
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
@@ -82,4 +82,4 @@ jobs:
           retention-days: 90
           if-no-files-found: error
           path:
-            opencv-build/opencv-*.zip
+            opencv-build/opencv_contrib-*.zip
