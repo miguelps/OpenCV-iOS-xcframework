@@ -46,8 +46,7 @@ jobs:
 
       - name: Build OpenCV
         run: |
-          rm -rf build
-          python3 platforms/apple/build_xcframework.py --out build \
+          python3 opencv-4.6.0/platforms/apple/build_xcframework.py --out build \
           --dynamic --disable-bitcode --iphoneos_deployment_target 11 \
           --build_only_specified_archs --iphoneos_archs arm64 --iphonesimulator_archs arm64,x86_64 \
           --without calib3d --without dnn --without features2d --without flann --without gapi --without highgui \
@@ -61,7 +60,7 @@ jobs:
 
       - name: Zip XCFramework
         run: |
-          cd ./opencv-build
+          cd opencv-4.6.0/build
           zip -r opencv-ios-${OCV_VER}.zip opencv2.xcframework
           ls -l
           du -sh opencv-ios-${OCV_VER}.zip
@@ -72,4 +71,4 @@ jobs:
           retention-days: 90
           if-no-files-found: error
           path:
-            opencv-build/opencv-*.zip
+            opencv-4.6.0/build/opencv-*.zip
