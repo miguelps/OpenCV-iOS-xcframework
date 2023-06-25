@@ -28,7 +28,7 @@ jobs:
           --dynamic --disable-bitcode --iphoneos_deployment_target 11 \
           --build_only_specified_archs --iphoneos_archs arm64 --iphonesimulator_archs arm64,x86_64 \
           --without calib3d --without dnn --without features2d --without flann --without gapi --without highgui \
-          --without java --without js --without ml --without nonfree --without objdetect --without objc --without photo \
+          --without java --without js --without ml --without nonfree --without objdetect --without photo \
           --without python --without stitching --without ts --without video --without videoio --without videostab
           rm -rf build/opencv2.xcframework ; mkdir -p build/opencv2.xcframework/Headers/opencv2 dev sym
           cp build/iphoneos/opencv2.framework/opencv2 dev/opencv2.dylib
