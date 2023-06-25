@@ -21,8 +21,6 @@ jobs:
         wget -q https://github.com/opencv/opencv/archive/4.6.0.zip -O opencv-4.6.0.zip
         unzip -q opencv-4.6.0.zip
         cd opencv-4.6.0
-        echo -n > cmake/OpenCVFindLibsGrfmt.cmake
-        patch -p1 -i ../opencv-4.6.0-no-zlib.patch
     - name: build-ios
       run: |
         run: |
