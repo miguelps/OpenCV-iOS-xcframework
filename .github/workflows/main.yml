@@ -48,18 +48,18 @@ jobs:
         env:
           BUILD_DIR: xcfrmwrk
         run: |
-          rm -rf ${{ BUILD_DIR }}
-          python3 platforms/apple/build_xcframework.py --out ${{ BUILD_DIR }} \
+          rm -rf ${{ env.BUILD_DIR }}
+          python3 platforms/apple/build_xcframework.py --out ${{ env.BUILD_DIR }} \
           --dynamic --disable-bitcode --iphoneos_deployment_target 11 \
           --build_only_specified_archs --iphoneos_archs arm64 --iphonesimulator_archs arm64,x86_64 \
           --without calib3d --without dnn --without features2d --without flann --without gapi --without highgui \
           --without java --without js --without ml --without nonfree --without objdetect --without objc --without photo \
           --without python --without stitching --without ts --without video --without videoio --without videostab
-          rm -rf ${{ BUILD_DIR }}/opencv2.xcframework ; mkdir -p ${{ BUILD_DIR }}/opencv2.xcframework/Headers/opencv2 dev sym
-          cp ${{ BUILD_DIR }}/iphoneos/opencv2.framework/opencv2 dev/opencv2.dylib
-          cp ${{ BUILD_DIR }}/iphonesimulator/opencv2.framework/opencv2 sym/opencv2.dylib
-          cp -r ${{ BUILD_DIR }}/iphoneos/opencv2.framework/Headers/* ${{ BUILD_DIR }}/opencv2.xcframework/Headers/opencv2
-          xcodebuild -create-xcframework -library dev/opencv2.dylib -library sym/opencv2.dylib -output ${{ BUILD_DIR }}/opencv2.xcframework
+          rm -rf ${{ env.BUILD_DIR }}/opencv2.xcframework ; mkdir -p ${{ env.BUILD_DIR }}/opencv2.xcframework/Headers/opencv2 dev sym
+          cp ${{ env.BUILD_DIR }}/iphoneos/opencv2.framework/opencv2 dev/opencv2.dylib
+          cp ${{ env.BUILD_DIR }}/iphonesimulator/opencv2.framework/opencv2 sym/opencv2.dylib
+          cp -r ${{ env.BUILD_DIR }}/iphoneos/opencv2.framework/Headers/* ${{ env.BUILD_DIR }}/opencv2.xcframework/Headers/opencv2
+          xcodebuild -create-xcframework -library dev/opencv2.dylib -library sym/opencv2.dylib -output ${{ env.BUILD_DIR }}/opencv2.xcframework
 
       - name: Zip XCFramework
         run: |
