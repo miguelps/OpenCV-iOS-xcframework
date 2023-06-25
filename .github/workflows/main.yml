@@ -2,7 +2,9 @@ name: Build OpenCV for iOS
 
 on:
   push:
-    branches: [ "main", "opencv" ]
+    branches: [ "opencv" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -12,64 +14,41 @@ jobs:
       OCV_VER: 4.6.0
 
     steps:
-      - name: Tools report
+    - uses: actions/checkout@v3
+    - name: opencv-source
+      run: |
+        echo "Package name:" ${{ env.PACKAGENAME }}
+        wget -q https://github.com/opencv/opencv/archive/4.6.0.zip -O opencv-4.6.0.zip
+        unzip -q opencv-4.6.0.zip
+        cd opencv-4.6.0
+        echo -n > cmake/OpenCVFindLibsGrfmt.cmake
+        patch -p1 -i ../opencv-4.6.0-no-zlib.patch
+    - name: build-ios
+      run: |
         run: |
-          type curl grep sed tr brew cmake git python3 2>&1
-          xcode-select -p
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Prepare Cache Key
-        run: |
-          echo "https://github.com/opencv/opencv/archive/refs/tags/${OCV_VER}.tar.gz" >> cache_key.txt
-
-      - name: Cache Downloads
-        id: cache-downloads
-        uses: actions/cache@v3
-        with:
-            path: |
-              ./cache/
-            key: ${{ hashFiles('cache_key.txt') }}
-
-      - name: Download if Needed
-        if: steps.cache-downloads.outputs.cache-hit != 'true'
-        run: |
-            mkdir -p ./cache
-            curl -o ./cache/opencv-${OCV_VER}.tar.gz -L "https://github.com/opencv/opencv/archive/refs/tags/${OCV_VER}.tar.gz"
-
-      - name: Extract OpenCV
-        run: |
-          tar xf ./cache/opencv-${OCV_VER}.tar.gz
-          ls -l
-
-      - name: Build OpenCV
-        env:
-          BUILD_DIR: xcfrmwrk
-        run: |
-          rm -rf ${{ env.BUILD_DIR }}
-          python3 platforms/apple/build_xcframework.py --out ${{ env.BUILD_DIR }} \
+          python3 opencv-4.6.0/platforms/apple/build_xcframework.py --out build \
           --dynamic --disable-bitcode --iphoneos_deployment_target 11 \
           --build_only_specified_archs --iphoneos_archs arm64 --iphonesimulator_archs arm64,x86_64 \
           --without calib3d --without dnn --without features2d --without flann --without gapi --without highgui \
           --without java --without js --without ml --without nonfree --without objdetect --without objc --without photo \
           --without python --without stitching --without ts --without video --without videoio --without videostab
-          rm -rf ${{ env.BUILD_DIR }}/opencv2.xcframework ; mkdir -p ${{ env.BUILD_DIR }}/opencv2.xcframework/Headers/opencv2 dev sym
-          cp ${{ env.BUILD_DIR }}/iphoneos/opencv2.framework/opencv2 dev/opencv2.dylib
-          cp ${{ env.BUILD_DIR }}/iphonesimulator/opencv2.framework/opencv2 sym/opencv2.dylib
-          cp -r ${{ env.BUILD_DIR }}/iphoneos/opencv2.framework/Headers/* ${{ env.BUILD_DIR }}/opencv2.xcframework/Headers/opencv2
-          xcodebuild -create-xcframework -library dev/opencv2.dylib -library sym/opencv2.dylib -output ${{ env.BUILD_DIR }}/opencv2.xcframework
+          rm -rf build/opencv2.xcframework ; mkdir -p build/opencv2.xcframework/Headers/opencv2 dev sym
+          cp build/iphoneos/opencv2.framework/opencv2 dev/opencv2.dylib
+          cp build/iphonesimulator/opencv2.framework/opencv2 sym/opencv2.dylib
+          cp -r build/iphoneos/opencv2.framework/Headers/* build/opencv2.xcframework/Headers/opencv2
+          xcodebuild -create-xcframework -library dev/opencv2.dylib -library sym/opencv2.dylib -output build/opencv2.xcframework
 
-      - name: Zip XCFramework
-        run: |
-          cd ./opencv-build
-          zip -r opencv-ios-${OCV_VER}.zip opencv2.xcframework
-          ls -l
-          du -sh opencv-ios-${OCV_VER}.zip
+    - name: Zip XCFramework
+      run: |
+        cd opencv-4.6.0/build
+        zip -r opencv-ios-${OCV_VER}.zip opencv2.xcframework
+        ls -l
+        du -sh opencv-ios-${OCV_VER}.zip
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v3.1.0
-        with:
-          retention-days: 90
-          if-no-files-found: error
-          path:
-            opencv-build/opencv-*.zip
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        retention-days: 90
+        if-no-files-found: error
+        path:
+          opencv-4.6.0/build/opencv-*.zip
