@@ -12,7 +12,6 @@ jobs:
     runs-on: macOS-12
     env:
       OCV_VER: 4.6.0
-      BUILD_DIR: xcfrmwrk
 
     steps:
       - name: Tools report
@@ -46,6 +45,8 @@ jobs:
           ls -l
 
       - name: Build OpenCV
+        env:
+          BUILD_DIR: xcfrmwrk
         run: |
           rm -rf ${{ BUILD_DIR }}
           python3 platforms/apple/build_xcframework.py --out ${{ BUILD_DIR }} \
