@@ -42,7 +42,6 @@ jobs:
       - name: Extract OpenCV
         run: |
           tar xf ./cache/opencv-${OCV_VER}.tar.gz
-          ls -l
 
       - name: Build OpenCV
         env:
