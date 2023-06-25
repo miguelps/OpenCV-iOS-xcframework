@@ -2,9 +2,7 @@ name: Build OpenCV for iOS
 
 on:
   push:
-    branches: [ "opencv" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "opencv" ]
 
 jobs:
   build:
