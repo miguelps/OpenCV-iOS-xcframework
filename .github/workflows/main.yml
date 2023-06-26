@@ -60,7 +60,7 @@ jobs:
 
       - name: Zip XCFramework
         run: |
-          cd opencv-4.6.0/build
+          cd build
           zip -r opencv-ios-${OCV_VER}.zip opencv2.xcframework
           ls -l
           du -sh opencv-ios-${OCV_VER}.zip
@@ -71,4 +71,4 @@ jobs:
           retention-days: 90
           if-no-files-found: error
           path:
-            opencv-4.6.0/build/opencv-*.zip
+            build/opencv-*.zip
