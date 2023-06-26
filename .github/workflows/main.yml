@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "opencv" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "opencv" ]
 
 jobs:
   build:
@@ -50,5 +50,7 @@ jobs:
       with:
         retention-days: 90
         if-no-files-found: error
+        name:
+          opencv-min-os.zip
         path:
           build/opencv-*.zip
